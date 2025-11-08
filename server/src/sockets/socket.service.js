@@ -1,4 +1,5 @@
 const { Server } = require("socket.io");
+const generateAIResponse = require("../services/ai.service");
 
 const initSocketService = (httpServer) => {
   const io = new Server(httpServer, {});
@@ -10,8 +11,15 @@ const initSocketService = (httpServer) => {
       console.log(`User ${socket.id} is disconnected`);
     });
 
-    socket.on("message", (data) => {
-      console.log(data);
+    socket.on("message", async (data) => {
+      //   console.log(data);
+      try {
+        const response = await generateAIResponse(data);
+        socket.emit("message", response);
+      } catch (err) {
+        console.error(`AI response error for socket ${socket.id}:`, err);
+        socket.emit("message", { error: "Failed to generate AI response" });
+      }
     });
   });
 };
