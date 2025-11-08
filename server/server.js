@@ -1,23 +1,15 @@
 const app = require("./src/app");
 const { Server } = require("socket.io");
+const initSocketService = require("./src/sockets/socket.service");
+const connectDB = require("./src/db/db");
 const httpServer = require("http").createServer(app);
 
-const io = new Server(httpServer, {});
+initSocketService(httpServer);
+
+connectDB()
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Perseus Server" });
-});
-
-io.on("connection", (socket) => {
-  console.log(`User ${socket.id} is connected`);
-
-  socket.on("disconnect", () => {
-    console.log(`User ${socket.id} is disconnected`);
-  });
-
-
-
-  
 });
 
 httpServer.listen(3000, () => {
